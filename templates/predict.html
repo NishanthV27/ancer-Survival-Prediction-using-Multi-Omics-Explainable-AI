@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Risk Prediction - Cancer Survival Prediction{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <h2><i class="bi bi-calculator text-primary me-2"></i>Patient Risk Prediction</h2>
+        <p>Infer individual patient survival probability trajectories and multi-omics prognostic risk categories.</p>
+    </div>
+
+    <!-- Academic Disclaimer Banner -->
+    <div class="disclaimer-banner d-flex align-items-center mb-4 shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-warning"></i>
+        <div>
+            <strong>ACADEMIC &amp; DEMONSTRATION USE ONLY:</strong> Model predictions generated here are computed from synthetic training distributions. This clinical tool must NOT be used to guide cancer diagnosis, patient triage, or therapy planning in actual medical practice.
+        </div>
+    </div>
+
+    <!-- Alert Container -->
+    <div id="predictionAlerts"></div>
+
+    <div class="row g-4">
+        <!-- Input Form Column -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+                    <h5 class="m-0 fw-bold text-navy">
+                        <i class="bi bi-sliders text-primary me-2"></i> Clinical &amp; Omics Input
+                    </h5>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="sampleBtn">
+                        <i class="bi bi-magic me-1"></i> Sample Patient
+                    </button>
+                </div>
+                <div class="card-body p-4">
+                    <form id="predictForm" autocomplete="off">
+                        <!-- Model Selection -->
+                        <div class="mb-3">
+                            <label for="modelSelect" class="form-label">
+                                <i class="bi bi-cpu text-primary me-1"></i> Survival Model Architecture
+                            </label>
+                            <select class="form-select" id="modelSelect" name="model" required>
+                                <option value="rsf" selected>Random Survival Forest (RSF) - Recommended</option>
+                                <option value="cox">Cox Proportional Hazards (CPH)</option>
+                            </select>
+                            <div class="form-text small">RSF models non-linear interactions; Cox PH assumes log-linear hazard ratios.</div>
+                        </div>
+
+                        <hr class="my-3 text-muted">
+
+                        <!-- Clinical Markers Section -->
+                        <h6 class="fw-bold text-navy mb-3">
+                            <i class="bi bi-person-badge text-primary me-1"></i> Clinical Baseline
+                        </h6>
+                        <div class="row g-3 mb-3">
+                            <div class="col-sm-6">
+                                <label for="age" class="form-label">Patient Age (Years)</label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="age" 
+                                       name="age" 
+                                       min="{{ input_ranges.age.min if input_ranges and input_ranges.age else 18 }}" 
+                                       max="{{ input_ranges.age.max if input_ranges and input_ranges.age else 95 }}" 
+                                       step="1" 
+                                       value="60" 
+                                       required>
+                                <div class="form-text small">Range: 18 &ndash; 95</div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label for="tumor_stage" class="form-label">Pathological Tumor Stage</label>
+                                <select class="form-select" id="tumor_stage" name="tumor_stage" required>
+                                    <option value="I">Stage I (Early / Localized)</option>
+                                    <option value="II" selected>Stage II (Locally Advanced)</option>
+                                    <option value="III">Stage III (Regional Lymph Nodes)</option>
+                                    <option value="IV">Stage IV (Distant Metastasis)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr class="my-3 text-muted">
+
+                        <!-- Gene Expression Section (Transcriptomics) -->
+                        <h6 class="fw-bold text-navy mb-3">
+                            <i class="bi bi-dna text-primary me-1"></i> Gene Expression (log2-normalized mRNA)
+                        </h6>
+                        <div class="row g-2 mb-3">
+                            <div class="col-4">
+                                <label for="gene_expr_A" class="form-label">Gene A</label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="gene_expr_A" 
+                                       name="gene_expr_A" 
+                                       step="0.01" 
+                                       value="8.50" 
+                                       required>
+                                <div class="form-text small">Oncogene A</div>
+                            </div>
+                            <div class="col-4">
+                                <label for="gene_expr_B" class="form-label">Gene B</label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="gene_expr_B" 
+                                       name="gene_expr_B" 
+                                       step="0.01" 
+                                       value="5.00" 
+                                       required>
+                                <div class="form-text small">Suppressor B</div>
+                            </div>
+                            <div class="col-4">
+                                <label for="gene_expr_C" class="form-label">Gene C</label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="gene_expr_C" 
+                                       name="gene_expr_C" 
+                                       step="0.01" 
+                                       value="6.20" 
+                                       required>
+                                <div class="form-text small">Biomarker C</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-3 text-muted">
+
+                        <!-- DNA Methylation Section (Epigenomics) -->
+                        <h6 class="fw-bold text-navy mb-3">
+                            <i class="bi bi-fingerprint text-purple me-1"></i> DNA Methylation (&beta;-values: 0.0 - 1.0)
+                        </h6>
+                        <div class="row g-2 mb-4">
+                            <div class="col-6">
+                                <label for="methylation_A" class="form-label">Methylation Site A</label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="methylation_A" 
+                                       name="methylation_A" 
+                                       min="0.00" 
+                                       max="1.00" 
+                                       step="0.01" 
+                                       value="0.45" 
+                                       required>
+                                <div class="form-text small">CpG locus 1 &beta;-value</div>
+                            </div>
+                            <div class="col-6">
+                                <label for="methylation_B" class="form-label">Methylation Site B</label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="methylation_B" 
+                                       name="methylation_B" 
+                                       min="0.00" 
+                                       max="1.00" 
+                                       step="0.01" 
+                                       value="0.50" 
+                                       required>
+                                <div class="form-text small">CpG locus 2 &beta;-value</div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-grow-1" id="submitBtn">
+                                <span class="spinner-border spinner-border-sm me-2" id="predictSpinner" style="display: none;" role="status"></span>
+                                <i class="bi bi-lightning-charge-fill me-1"></i> Calculate Survival Risk
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="clearBtn">
+                                <i class="bi bi-arrow-counterclockwise"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prediction Results Column -->
+        <div class="col-lg-7">
+            <!-- Results Container (Toggled via JS) -->
+            <div id="resultSection" class="result-section">
+                <!-- Risk Category & Score Card -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+                        <h5 class="m-0 fw-bold text-navy">
+                            <i class="bi bi-speedometer text-danger me-2"></i> Predicted Prognostic Assessment
+                        </h5>
+                        <span id="riskBadge" class="risk-badge">Analysis Ready</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="risk-score-display text-center py-2">
+                            <div class="text-muted text-uppercase tracking-wider small mb-1">Estimated Relative Risk Score</div>
+                            <div id="riskScoreValue" class="risk-score-value text-primary">&mdash;</div>
+                            <p class="text-secondary mt-2 mb-0" id="riskExplanation">
+                                Risk score reflects model hazard ratio or cumulative ensemble mortality hazard.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Survival Probability Chart Container -->
+                <div class="card shadow-sm border-0 mb-4" id="survProbContainer" style="display: none;">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="m-0 fw-bold text-navy">
+                            <i class="bi bi-graph-up text-primary me-2"></i> Predicted Survival Probability Over Time
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="chart-container" style="height: 320px;">
+                            <canvas id="survivalProbChart"></canvas>
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                            <i class="bi bi-info-circle me-1"></i> Probability S(t) denotes the likelihood of patient survival past t months post-diagnosis.
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Feature Contributions Chart Container -->
+                <div class="card shadow-sm border-0 mb-4" id="featureContribContainer" style="display: none;">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="m-0 fw-bold text-navy">
+                            <i class="bi bi-bar-chart-steps text-info me-2"></i> Patient-Specific Feature Contributions
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="chart-container" style="height: 320px;">
+                            <canvas id="featureContribChart"></canvas>
+                        </div>
+                        <div class="alert alert-light border mt-3 mb-0 small text-muted">
+                            <strong>Interpretation Guide:</strong> Red bars indicate features increasing mortality risk (e.g. advanced stage, elevated oncogene expression); green bars indicate protective factors attenuating risk (e.g. younger age, active tumor suppressor expression).
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Initial Placeholder Card when no prediction has been executed -->
+            <div class="card shadow-sm border-0 text-center p-5 text-muted" id="initialPlaceholder">
+                <div class="py-4">
+                    <i class="bi bi-clipboard2-pulse fs-1 text-primary opacity-50 mb-3 d-inline-block"></i>
+                    <h5 class="fw-bold text-navy">No Risk Assessment Computed Yet</h5>
+                    <p class="mx-auto text-secondary" style="max-width: 440px;">
+                        Adjust patient age, stage, mRNA expression, and methylation values on the left panel, or click <strong>Sample Patient</strong> to populate demo data and evaluate survival trajectory.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/prediction.js') }}"></script>
+<script>
+    // Toggle initial placeholder visibility with resultSection
+    const originalDisplay = window.displayPredictionResult;
+    if (typeof originalDisplay === 'function') {
+        window.displayPredictionResult = function(result) {
+            const placeholder = document.getElementById('initialPlaceholder');
+            if (placeholder) placeholder.style.display = 'none';
+            originalDisplay(result);
+        };
+    }
+    // Also toggle placeholder on form submit
+    document.getElementById('predictForm')?.addEventListener('submit', function() {
+        const placeholder = document.getElementById('initialPlaceholder');
+        if (placeholder) placeholder.style.display = 'none';
+    });
+    // Restore placeholder on reset
+    document.getElementById('clearBtn')?.addEventListener('click', function() {
+        const placeholder = document.getElementById('initialPlaceholder');
+        if (placeholder) placeholder.style.display = 'block';
+    });
+</script>
+{% endblock %}

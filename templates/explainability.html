@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}Explainable AI &amp; Feature Importance - Cancer Survival Prediction{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- Page Header -->
+    <div class="page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h2><i class="bi bi-cpu text-primary me-2"></i>Explainable AI &mdash; Feature Importance</h2>
+            <p>Demystifying black-box survival models using global feature attribution and patient-level local Shapley values.</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            <button class="btn btn-outline-primary btn-sm" onclick="loadGlobalExplainability()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Reload Importance
+            </button>
+        </div>
+    </div>
+
+    <!-- Academic Disclaimer Banner -->
+    <div class="disclaimer-banner d-flex align-items-center mb-4 shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-warning"></i>
+        <div>
+            <strong>ACADEMIC METHODOLOGY DEMONSTRATION:</strong> SHAP and feature importance metrics are calculated from synthetic multi-omics data for research exposition. They do not represent real-world clinical biomarker associations.
+        </div>
+    </div>
+
+    <!-- Global Explainability Alert & Loading -->
+    <div id="explainAlerts"></div>
+    <div id="explainLoading" class="spinner-container">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Computing SHAP values...</span>
+        </div>
+        <p class="mt-3 text-muted fw-semibold">Extracting global feature attribution &amp; Shapley rankings...</p>
+    </div>
+
+    <!-- Methodological Explanation of SHAP -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="m-0 fw-bold text-navy">
+                <i class="bi bi-diagram-3-fill text-primary me-2"></i> Understanding Explainable AI (SHAP) in Survival Modeling
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <h6 class="fw-bold text-navy mb-2">Cooperative Game Theory &amp; Shapley Values</h6>
+                    <p class="text-secondary small mb-3">
+                        SHAP (SHapley Additive exPlanations) is founded upon axiomatic Shapley values from cooperative game theory. In this context, features act as "players" in a game whose outcome is the model's predicted hazard or survival function. SHAP fairly distributes the credit or penalty for a prediction among all input biomarkers.
+                    </p>
+                    <div class="p-3 bg-light rounded border small">
+                        <strong>Key Mathematical Properties:</strong>
+                        <ul class="mb-0 ps-3 mt-1 text-muted">
+                            <li><strong>Efficiency:</strong> Sum of feature contributions equals the difference between model output and expected baseline.</li>
+                            <li><strong>Symmetry:</strong> Identical contributors receive equal importance.</li>
+                            <li><strong>Additivity:</strong> Ensemble model explanations equal the sum of constituent tree explanations.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <h6 class="fw-bold text-navy mb-2">Global vs. Local Interpretability</h6>
+                    <p class="text-secondary small mb-3">
+                        Machine learning in medicine demands both cohort-level governance and bedside individualization:
+                    </p>
+                    <ul class="list-unstyled small text-secondary">
+                        <li class="mb-2 d-flex align-items-start">
+                            <span class="badge bg-primary me-2 mt-1">Global</span>
+                            <div><strong>Population-Wide Importance:</strong> Measures the mean absolute impact of each omics and clinical feature across all patients in the training cohort.</div>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <span class="badge bg-success me-2 mt-1">Local</span>
+                            <div><strong>Individual Patient Attribution:</strong> Explains exactly which biomarkers pushed this specific patient into a high-risk or low-risk category.</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Feature Importance Section -->
+    <div class="row g-4 mb-4">
+        <!-- Global Importance Chart -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3 d-flex flex-wrap align-items-center justify-content-between">
+                    <h5 class="m-0 fw-bold text-navy">
+                        <i class="bi bi-bar-chart-fill text-primary me-2"></i> Global Feature Importance
+                    </h5>
+                    <span id="importanceMethodLabel" class="badge bg-light text-primary border">Method: Permutation / SHAP</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="chart-container" style="height: 360px;">
+                        <canvas id="globalImportanceChart"></canvas>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        Features ranked by relative predictive weight across the survival model. Higher values designate stronger influence on patient survival prognostication.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Descriptions Reference Table -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="m-0 fw-bold text-navy">
+                        <i class="bi bi-info-circle text-info me-2"></i> Biomarker Feature Dictionary
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+                        <table class="table table-sm table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="width: 35%;">Feature</th>
+                                    <th scope="col">Biological Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="featureDescBody">
+                                <!-- Default static rows (replaced or augmented dynamically) -->
+                                <tr>
+                                    <td><code>tumor_stage</code></td>
+                                    <td>Pathological AJCC tumor stage (I &ndash; IV) indicating anatomical tumor progression and spread.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>age</code></td>
+                                    <td>Patient baseline age in years at original diagnosis.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>gene_expr_A</code></td>
+                                    <td>log2-transformed mRNA expression of Oncogene A; elevated expression correlates with elevated proliferative activity.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>gene_expr_B</code></td>
+                                    <td>log2-transformed mRNA expression of Tumor Suppressor B; reduced expression indicates loss of checkpoint control.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>gene_expr_C</code></td>
+                                    <td>Transcriptional expression of Biomarker C linked to microenvironment angiogenesis.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>methylation_A</code></td>
+                                    <td>DNA methylation &beta;-value (0&ndash;1) at CpG promoter island locus A. High values denote promoter hypermethylation.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>methylation_B</code></td>
+                                    <td>DNA methylation &beta;-value (0&ndash;1) at CpG promoter island locus B.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Local Explanation Interactive Section -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3 d-flex flex-wrap align-items-center justify-content-between">
+            <h5 class="m-0 fw-bold text-navy">
+                <i class="bi bi-person-check-fill text-success me-2"></i> Patient-Level Local Explanation Generator
+            </h5>
+            <span class="badge bg-success bg-opacity-10 text-success">Local Attribution</span>
+        </div>
+        <div class="card-body p-4">
+            <div id="localExplainAlerts"></div>
+
+            <form id="localExplainForm" class="mb-4">
+                <div class="row g-3">
+                    <!-- Model Selection -->
+                    <div class="col-md-4">
+                        <label for="explain_model" class="form-label fw-bold">Survival Model</label>
+                        <select class="form-select" id="explain_model" name="model" required>
+                            <option value="rsf" selected>Random Survival Forest (TreeSHAP)</option>
+                            <option value="cox">Cox Proportional Hazards (Linear Attribution)</option>
+                        </select>
+                    </div>
+
+                    <!-- Age -->
+                    <div class="col-md-4">
+                        <label for="explain_age" class="form-label fw-bold">Age (Years)</label>
+                        <input type="number" class="form-control" id="explain_age" name="age" min="18" max="95" value="62" required>
+                    </div>
+
+                    <!-- Tumor Stage -->
+                    <div class="col-md-4">
+                        <label for="explain_tumor_stage" class="form-label fw-bold">Tumor Stage</label>
+                        <select class="form-select" id="explain_tumor_stage" name="tumor_stage" required>
+                            <option value="I">Stage I</option>
+                            <option value="II">Stage II</option>
+                            <option value="III" selected>Stage III</option>
+                            <option value="IV">Stage IV</option>
+                        </select>
+                    </div>
+
+                    <!-- Gene Expressions -->
+                    <div class="col-md-4">
+                        <label for="explain_gene_expr_A" class="form-label fw-bold">Gene A (mRNA)</label>
+                        <input type="number" class="form-control" id="explain_gene_expr_A" name="gene_expr_A" step="0.01" value="9.50" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="explain_gene_expr_B" class="form-label fw-bold">Gene B (mRNA)</label>
+                        <input type="number" class="form-control" id="explain_gene_expr_B" name="gene_expr_B" step="0.01" value="4.20" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="explain_gene_expr_C" class="form-label fw-bold">Gene C (mRNA)</label>
+                        <input type="number" class="form-control" id="explain_gene_expr_C" name="gene_expr_C" step="0.01" value="7.10" required>
+                    </div>
+
+                    <!-- Methylations -->
+                    <div class="col-md-4">
+                        <label for="explain_methylation_A" class="form-label fw-bold">Methylation A (&beta;)</label>
+                        <input type="number" class="form-control" id="explain_methylation_A" name="methylation_A" min="0" max="1" step="0.01" value="0.65" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="explain_methylation_B" class="form-label fw-bold">Methylation B (&beta;)</label>
+                        <input type="number" class="form-control" id="explain_methylation_B" name="methylation_B" min="0" max="1" step="0.01" value="0.42" required>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="col-md-4 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1" id="explainBtn">
+                            <span class="spinner-border spinner-border-sm me-2" id="explainSpinner" style="display: none;" role="status"></span>
+                            <i class="bi bi-lightning-charge me-1"></i> Explain Prediction
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="explainSampleBtn">
+                            <i class="bi bi-magic"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Local Explanation Results Display -->
+            <div id="localExplainResult" style="display: none;" class="border-top pt-4">
+                <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+                    <h6 class="fw-bold text-navy m-0">
+                        <i class="bi bi-waterfall me-2 text-primary"></i> Patient Feature Contributions to Mortality Risk
+                    </h6>
+                    <span id="localMethodLabel" class="badge bg-light text-primary border">Method: Local Shapley</span>
+                </div>
+
+                <div class="chart-container mb-3" style="height: 320px;">
+                    <canvas id="localContribChart"></canvas>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-danger bg-opacity-10 rounded border border-danger-subtle">
+                            <h6 class="fw-bold text-danger mb-1">
+                                <i class="bi bi-arrow-up-circle-fill me-1"></i> Positive Contributions (Red)
+                            </h6>
+                            <p class="text-secondary small mb-0">
+                                Features pushing the patient toward higher hazard of the primary endpoint (reduced survival). For example, advanced tumor stage or high oncogene expression.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-success bg-opacity-10 rounded border border-success-subtle">
+                            <h6 class="fw-bold text-success mb-1">
+                                <i class="bi bi-arrow-down-circle-fill me-1"></i> Negative Contributions (Green)
+                            </h6>
+                            <p class="text-secondary small mb-0">
+                                Protective factors driving risk lower relative to the baseline cohort (prolonged survival). For example, younger patient age or active tumor suppressor expression.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/explainability.js') }}"></script>
+{% endblock %}

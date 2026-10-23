@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}Cancer Survival Prediction{% endblock %} | OncoPredict AI</title>
+
+    <!-- Bootstrap 5.3 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom Application CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Mobile Navigation Toggle Button -->
+    <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle Navigation Menu">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="d-flex align-items-center justify-content-center mb-2">
+                <i class="bi bi-heart-pulse-fill text-danger fs-3 me-2"></i>
+                <h5 class="m-0">OncoPredict AI</h5>
+            </div>
+            <small class="text-uppercase tracking-wider">Multi-Omics Survival AI</small>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li>
+                <a href="/" class="{% if request.path == '/' %}active{% endif %}">
+                    <i class="bi bi-house-door"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard" class="{% if request.path == '/dashboard' %}active{% endif %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/predict" class="{% if request.path == '/predict' %}active{% endif %}">
+                    <i class="bi bi-calculator"></i>
+                    <span>Predict Risk</span>
+                </a>
+            </li>
+            <li>
+                <a href="/analytics" class="{% if request.path == '/analytics' %}active{% endif %}">
+                    <i class="bi bi-graph-up"></i>
+                    <span>Analytics</span>
+                </a>
+            </li>
+            <li>
+                <a href="/explainability" class="{% if request.path == '/explainability' %}active{% endif %}">
+                    <i class="bi bi-cpu"></i>
+                    <span>Explainable AI</span>
+                </a>
+            </li>
+            <li>
+                <a href="/dataset" class="{% if request.path == '/dataset' %}active{% endif %}">
+                    <i class="bi bi-table"></i>
+                    <span>Dataset Explorer</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about" class="{% if request.path == '/about' %}active{% endif %}">
+                    <i class="bi bi-info-circle"></i>
+                    <span>About</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="px-3 mt-4 text-center">
+            <span class="badge bg-warning text-dark text-wrap py-2 px-3 small border">
+                <i class="bi bi-shield-exclamation me-1"></i> Synthetic Demo
+            </span>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container-fluid p-0 mb-4">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show shadow-sm" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i> {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Content Block -->
+        {% block content %}{% endblock %}
+
+        <!-- Academic Disclaimer Footer -->
+        <footer class="footer">
+            <div class="container-fluid">
+                <p class="mb-1 text-secondary">
+                    <i class="bi bi-shield-fill-exclamation text-warning me-1"></i>
+                    <strong>Academic Research Notice:</strong> This application uses synthetic data for educational purposes only. Not for clinical use.
+                </p>
+                <p class="mb-0 text-muted small">
+                    Cancer Survival Prediction with Multi-Omics & Explainable AI &bull; TCGA-COAD Synthetic Demonstration
+                </p>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Chart.js 4.x CDN Script -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Bootstrap 5.3 JS Bundle CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Main Application Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- Page Specific Scripts -->
+    {% block scripts %}{% endblock %}
+</body>
+</html>

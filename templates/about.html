@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}About This Project - Cancer Survival Prediction{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0 about-section">
+
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <h2><i class="bi bi-info-circle text-primary me-2"></i>About This Project</h2>
+        <p>Scientific background, computational survival methodology, multi-omics architecture, and explainable AI framework.</p>
+    </div>
+
+    <!-- Academic Disclaimer Banner -->
+    <div class="disclaimer-banner d-flex align-items-center mb-4 shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-warning"></i>
+        <div>
+            <strong>EDUCATIONAL DEMONSTRATION NOTICE:</strong> This web application and all associated predictive models have been constructed exclusively for academic benchmarking, research presentation, and algorithmic demonstration. The underlying dataset is synthetically generated and must NOT be utilized for clinical diagnosis, patient management, or therapeutic guidance.
+        </div>
+    </div>
+
+    <!-- Section 1: Problem Statement -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="p-2 rounded bg-primary bg-opacity-10 text-primary me-3">
+                    <i class="bi bi-exclamation-diamond fs-4"></i>
+                </div>
+                <h5 class="m-0">1. Problem Statement: The Challenge of Cancer Survival Modeling</h5>
+            </div>
+            <p class="text-secondary">
+                Colorectal adenocarcinoma (COAD) remains one of the leading causes of cancer-related mortality worldwide. Accurate patient prognosis is critical for personalized oncology, adjuvant chemotherapy stratification, and clinical trial enrollment. However, classical statistical modeling in oncology faces substantial hurdles:
+            </p>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <h6 class="fw-bold text-navy"><i class="bi bi-shuffle text-warning me-1"></i> Extreme Tumor Heterogeneity</h6>
+                        <p class="small text-muted mb-0">
+                            Patients diagnosed with identical histological subtypes and AJCC stages frequently experience drastically divergent clinical outcomes due to underlying molecular variation.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <h6 class="fw-bold text-navy"><i class="bi bi-hourglass text-danger me-1"></i> Right-Censored Lifetime Data</h6>
+                        <p class="small text-muted mb-0">
+                            Clinical endpoints are incomplete: patients drop out of trials, reach study conclusion alive, or are lost to follow-up, invalidating standard regression and classification algorithms.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Objectives -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="p-2 rounded bg-success bg-opacity-10 text-success me-3">
+                    <i class="bi bi-bullseye fs-4"></i>
+                </div>
+                <h5 class="m-0">2. Research Objectives</h5>
+            </div>
+            <p class="text-secondary mb-3">
+                This project establishes a modern computational prototype designed to address the aforementioned challenges through three foundational aims:
+            </p>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <strong class="text-navy d-block mb-1">Multi-Omics Fusion</strong>
+                        <p class="small text-muted mb-0">Seamlessly combine clinical staging, transcriptomic gene expression, and epigenetic DNA methylation biomarkers into a unified feature space.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <strong class="text-navy d-block mb-1">Non-Linear Survival Analysis</strong>
+                        <p class="small text-muted mb-0">Benchmark conventional semi-parametric Cox models against non-linear Random Survival Forests capable of handling complex gene-gene interactions.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <strong class="text-navy d-block mb-1">Actionable XAI Interpretability</strong>
+                        <p class="small text-muted mb-0">Deliver transparent Shapley attributions for bedside transparency, transforming black-box ensemble decisions into interpretable biological insights.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Multi-Omics Data -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="p-2 rounded bg-info bg-opacity-10 text-info me-3">
+                    <i class="bi bi-dna fs-4"></i>
+                </div>
+                <h5 class="m-0">3. Multi-Omics Data Modalities</h5>
+            </div>
+            <p class="text-secondary mb-3">
+                Our model utilizes synthetic data mimicking The Cancer Genome Atlas Colorectal Adenocarcinoma (TCGA-COAD) project:
+            </p>
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Omics Layer</th>
+                            <th>Features Modeled</th>
+                            <th>Measurement Scale</th>
+                            <th>Biological Relevance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Clinical Demographics</strong></td>
+                            <td>Age, Pathological AJCC Stage (I&ndash;IV)</td>
+                            <td>Years, Ordinal stages</td>
+                            <td>Baseline host resilience and macro-anatomical invasion depth.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Transcriptomics</strong></td>
+                            <td>Gene A, Gene B, Gene C</td>
+                            <td>log2(TPM + 1) normalized mRNA</td>
+                            <td>Captures activation of cell proliferation, apoptosis evasion, and checkpoint control.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Epigenomics</strong></td>
+                            <td>Methylation A, Methylation B</td>
+                            <td>&beta;-values [0.0 &ndash; 1.0]</td>
+                            <td>Quantifies hypermethylation and epigenetic silencing of critical tumor suppressor promoter islands.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 4: Machine Learning Methodology -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="p-2 rounded bg-warning bg-opacity-10 text-warning me-3">
+                    <i class="bi bi-gear-wide-connected fs-4"></i>
+                </div>
+                <h5 class="m-0">4. Survival Machine Learning Methodology</h5>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <h6 class="fw-bold text-navy">Cox Proportional Hazards (CPH)</h6>
+                    <p class="text-secondary small">
+                        A semi-parametric model formulated as <code>h(t|X) = h₀(t) &bull; exp(&beta;ᵀX)</code>. It models the hazard ratio as a linear combination of covariates. While computationally stable and readily interpretable, CPH assumes proportional hazards over time and struggles to capture high-order non-linear biomarker interactions.
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="fw-bold text-navy">Random Survival Forests (RSF)</h6>
+                    <p class="text-secondary small">
+                        An ensemble tree-based method extending Breiman's random forests to right-censored outcomes using log-rank splitting criteria. RSF computes cumulative hazard functions by aggregating across individual survival trees, naturally discovering non-linear interactions without proportional hazard restrictions.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 5: Explainable AI -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="p-2 rounded bg-purple bg-opacity-10 text-purple me-3">
+                    <i class="bi bi-diagram-3 fs-4"></i>
+                </div>
+                <h5 class="m-0">5. Explainable AI (SHAP Methodology)</h5>
+            </div>
+            <p class="text-secondary">
+                Clinical deployment of artificial intelligence requires total auditability. To prevent uninterpretable predictions, we utilize SHAP (SHapley Additive exPlanations):
+            </p>
+            <ul class="text-secondary mb-0">
+                <li class="mb-2"><strong>TreeSHAP Algorithm:</strong> Employs exact polynomial-time computation to trace conditional expectation paths across decision trees in the survival forest.</li>
+                <li class="mb-2"><strong>Additive Risk Attribution:</strong> Translates abstract ensemble hazard functions into patient-specific additive contributions, where red bars depict elevated risk factors and green bars denote protective biomarkers.</li>
+                <li><strong>Global Permutation &amp; Feature Importance:</strong> Aggregates absolute Shapley values across the test cohort to rank the global predictive authority of each feature.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Section 6: Evaluation Metrics -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="p-2 rounded bg-success bg-opacity-10 text-success me-3">
+                    <i class="bi bi-check2-circle fs-4"></i>
+                </div>
+                <h5 class="m-0">6. Survival Model Evaluation: The C-Index</h5>
+            </div>
+            <p class="text-secondary mb-2">
+                Standard classification metrics (Accuracy, ROC-AUC, F1-score) are unsuitable for survival analysis due to variable follow-up durations and censoring. Instead, survival models are evaluated with Harrell's Concordance Index (C-Index):
+            </p>
+            <div class="bg-light p-3 rounded border text-muted small mb-3">
+                <strong>Harrell's C-Index Formula:</strong> Proportion of all evaluable patient pairs where the model correctly predicts who experiences the event first.
+                <ul class="mb-0 mt-1">
+                    <li><strong>C = 0.5:</strong> Equivalent to a random coin flip.</li>
+                    <li><strong>0.7 &le; C &le; 0.8:</strong> Strong discrimination in clinical biomarker modeling.</li>
+                    <li><strong>C = 1.0:</strong> Perfect discrimination of relative event timings.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 7: Limitations -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="p-2 rounded bg-danger bg-opacity-10 text-danger me-3">
+                    <i class="bi bi-shield-x fs-4"></i>
+                </div>
+                <h5 class="m-0">7. Methodological Limitations</h5>
+            </div>
+            <ul class="text-secondary mb-0">
+                <li class="mb-2"><strong>Synthetic Benchmark Data:</strong> Features and events are simulated from parameterized Gaussian copulas and synthetic hazard rates. They do not mirror real biological tumor phenotypes.</li>
+                <li class="mb-2"><strong>Limited Cohort Dimensionality:</strong> For educational clarity, the dataset is restricted to 3 gene expression and 2 methylation markers rather than full genome-wide ~20,000 gene panels and ~450k CpG sites.</li>
+                <li><strong>No Prospective Multi-Center Validation:</strong> Models have not undergone prospective clinical trials, external hospital validation, or regulatory clearance (e.g. FDA SaMD).</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Section 8: Future Scope -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="p-2 rounded bg-primary bg-opacity-10 text-primary me-3">
+                    <i class="bi bi-compass fs-4"></i>
+                </div>
+                <h5 class="m-0">8. Future Scope &amp; Next Steps</h5>
+            </div>
+            <div class="row g-3 text-secondary">
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <strong class="text-navy">Real GDC Multi-Omics</strong>
+                        <p class="small text-muted mb-0 mt-1">Direct API integration with the NCI Genomic Data Commons (GDC) for automated retrieval of normalized TCGA and TARGET cohorts.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <strong class="text-navy">DeepSurv &amp; Transformers</strong>
+                        <p class="small text-muted mb-0 mt-1">Incorporating deep learning survival architectures (DeepSurv, Cox-Time) and self-attention transformers for high-dimensional genomic embeddings.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <strong class="text-navy">Multimodal Histopathology</strong>
+                        <p class="small text-muted mb-0 mt-1">Fusing gigapixel Whole Slide Images (WSI) with molecular multi-omics using weakly-supervised graph neural networks.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 9: Technology Stack -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="p-2 rounded bg-secondary bg-opacity-10 text-navy me-3">
+                    <i class="bi bi-stack fs-4"></i>
+                </div>
+                <h5 class="m-0">9. Technology Stack</h5>
+            </div>
+            <div class="row g-3">
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-3 bg-light rounded text-center border h-100">
+                        <i class="bi bi-filetype-py fs-2 text-primary"></i>
+                        <h6 class="fw-bold mt-2 mb-1">Backend Core</h6>
+                        <small class="text-muted">Python 3.10+, Flask REST API, Jinja2 Templates</small>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-3 bg-light rounded text-center border h-100">
+                        <i class="bi bi-cpu fs-2 text-success"></i>
+                        <h6 class="fw-bold mt-2 mb-1">Survival ML</h6>
+                        <small class="text-muted">scikit-survival, lifelines, scikit-learn</small>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-3 bg-light rounded text-center border h-100">
+                        <i class="bi bi-diagram-3 fs-2 text-warning"></i>
+                        <h6 class="fw-bold mt-2 mb-1">Explainability</h6>
+                        <small class="text-muted">SHAP (TreeSHAP &amp; KernelSHAP), NumPy, Pandas</small>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-3 bg-light rounded text-center border h-100">
+                        <i class="bi bi-window-desktop fs-2 text-info"></i>
+                        <h6 class="fw-bold mt-2 mb-1">Frontend UI</h6>
+                        <small class="text-muted">Bootstrap 5.3, Bootstrap Icons, Chart.js 4.x</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

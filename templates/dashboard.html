@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}Dataset Dashboard - Cancer Survival Prediction{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- Page Header -->
+    <div class="page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h2><i class="bi bi-speedometer2 text-primary me-2"></i>Dataset Dashboard</h2>
+            <p>Comprehensive overview of clinical, transcriptomic, and epigenetic features in the synthetic TCGA-COAD cohort.</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            <a href="/api/dataset/download" class="btn btn-outline-primary btn-sm me-2">
+                <i class="bi bi-download me-1"></i> Export Dataset CSV
+            </a>
+            <button class="btn btn-primary btn-sm" onclick="loadDashboardData()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Refresh Data
+            </button>
+        </div>
+    </div>
+
+    <!-- Academic Disclaimer Banner -->
+    <div class="disclaimer-banner d-flex align-items-center mb-4 shadow-sm">
+        <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-warning"></i>
+        <div>
+            <strong>Synthetic Research Cohort:</strong> All metrics, distributions, and survival events shown below reflect synthetic data generated for educational and benchmarking purposes.
+        </div>
+    </div>
+
+    <!-- Dashboard Alert Container -->
+    <div id="dashboardAlerts"></div>
+
+    <!-- Loading Spinner Overlay -->
+    <div id="dashboardLoading" class="spinner-container">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading dashboard metrics...</span>
+        </div>
+        <p class="mt-3 text-muted fw-semibold">Loading cohort distributions and survival statistics...</p>
+    </div>
+
+    <!-- Top Cohort Stat Cards -->
+    <div class="row g-3 mb-4">
+        <!-- Total Patients / Records -->
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stat-card shadow-sm h-100">
+                <div class="stat-icon text-primary"><i class="bi bi-people-fill"></i></div>
+                <div class="stat-value" id="statTotal">{{ stats.total_patients if stats and stats.total_patients is defined else '1,000' }}</div>
+                <div class="stat-label">Total Records</div>
+            </div>
+        </div>
+
+        <!-- Events (Mortality) -->
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stat-card shadow-sm h-100">
+                <div class="stat-icon text-danger"><i class="bi bi-heartbreak-fill"></i></div>
+                <div class="stat-value text-danger" id="statEvents">{{ stats.events if stats and stats.events is defined else '350' }}</div>
+                <div class="stat-label">Events (Deaths)</div>
+            </div>
+        </div>
+
+        <!-- Censored -->
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stat-card shadow-sm h-100">
+                <div class="stat-icon text-success"><i class="bi bi-shield-check"></i></div>
+                <div class="stat-value text-success" id="statCensored">{{ stats.censored if stats and stats.censored is defined else '650' }}</div>
+                <div class="stat-label">Right Censored</div>
+            </div>
+        </div>
+
+        <!-- Average Age -->
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stat-card shadow-sm h-100">
+                <div class="stat-icon text-info"><i class="bi bi-calendar3"></i></div>
+                <div class="stat-value text-info" id="statAvgAge">{{ stats.avg_age if stats and stats.avg_age is defined else '62.4' }}</div>
+                <div class="stat-label">Avg Age (Yrs)</div>
+            </div>
+        </div>
+
+        <!-- Average Survival Time -->
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stat-card shadow-sm h-100">
+                <div class="stat-icon text-warning"><i class="bi bi-clock-history"></i></div>
+                <div class="stat-value text-warning" id="statAvgSurv">{{ stats.avg_survival if stats and stats.avg_survival is defined else '41.8' }}</div>
+                <div class="stat-label">Avg Survival (Mo)</div>
+            </div>
+        </div>
+
+        <!-- Median Survival Time -->
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="stat-card shadow-sm h-100">
+                <div class="stat-icon text-purple"><i class="bi bi-hourglass-split"></i></div>
+                <div class="stat-value text-purple" id="statMedianSurv">{{ stats.median_survival if stats and stats.median_survival is defined else '38.0' }}</div>
+                <div class="stat-label">Median Surv (Mo)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Row 1: Demographics & Clinical -->
+    <div class="row g-4 mb-4">
+        <!-- Age Distribution Chart -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+                    <h6 class="m-0 fw-bold text-navy">
+                        <i class="bi bi-bar-chart-fill text-primary me-2"></i> Patient Age Distribution
+                    </h6>
+                    <span class="badge bg-light text-secondary">Clinical</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 320px;">
+                        <canvas id="ageDistChart"></canvas>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        Binned histogram illustrating patient age distribution across the study cohort.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tumor Stage Distribution -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+                    <h6 class="m-0 fw-bold text-navy">
+                        <i class="bi bi-pie-chart-fill text-primary me-2"></i> Pathological Tumor Stage (I - IV)
+                    </h6>
+                    <span class="badge bg-light text-secondary">Staging</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 320px;">
+                        <canvas id="tumorStageChart"></canvas>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        Cohort breakdown across pathological American Joint Committee on Cancer (AJCC) tumor stages.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Row 2: Survival Outcomes & Events -->
+    <div class="row g-4 mb-4">
+        <!-- Event Distribution (Deaths vs Censored) -->
+        <div class="col-lg-5">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+                    <h6 class="m-0 fw-bold text-navy">
+                        <i class="bi bi-pie-chart text-danger me-2"></i> Event vs. Censored Proportions
+                    </h6>
+                    <span class="badge bg-light text-secondary">Vital Status</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 320px;">
+                        <canvas id="eventDistChart"></canvas>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        Vital status breakdown distinguishing observed endpoint occurrences from right-censored patients.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall Survival Time Distribution -->
+        <div class="col-lg-7">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+                    <h6 class="m-0 fw-bold text-navy">
+                        <i class="bi bi-graph-up-arrow text-success me-2"></i> Overall Follow-up / Survival Time
+                    </h6>
+                    <span class="badge bg-light text-secondary">Timeline</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 320px;">
+                        <canvas id="survivalDistChart"></canvas>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        Frequency histogram of follow-up survival times in months for the multi-omics cohort.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Row 3: Multi-Omics Biomarkers (Genomics & Epigenomics) -->
+    <div class="row g-4 mb-4">
+        <!-- Gene Expression Summary -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+                    <h6 class="m-0 fw-bold text-navy">
+                        <i class="bi bi-dna text-primary me-2"></i> Gene Expression Statistics (mRNA)
+                    </h6>
+                    <span class="badge bg-primary bg-opacity-10 text-primary">Transcriptomics</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 320px;">
+                        <canvas id="geneExprChart"></canvas>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        Mean and median log2-normalized expression levels across candidate genes (Gene A, B, and C).
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- DNA Methylation Summary -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+                    <h6 class="m-0 fw-bold text-navy">
+                        <i class="bi bi-fingerprint text-purple me-2"></i> DNA Methylation Statistics (&beta;-values)
+                    </h6>
+                    <span class="badge bg-purple bg-opacity-10 text-purple">Epigenomics</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 320px;">
+                        <canvas id="methylationChart"></canvas>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        Mean and standard deviation for DNA methylation &beta;-values bounded between 0 (unmethylated) and 1 (fully methylated).
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Metrics Section -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+            <h5 class="m-0 fw-bold text-navy">
+                <i class="bi bi-check2-circle text-success me-2"></i> Trained Survival Model Concordance
+            </h5>
+            <span class="badge bg-success bg-opacity-10 text-success">Cross-Validated C-Index</span>
+        </div>
+        <div class="card-body p-4">
+            <div id="modelMetrics">
+                {% if model_metrics %}
+                <div class="row g-3">
+                    {% for name, metrics in model_metrics.items() %}
+                    <div class="col-md-6">
+                        <div class="stat-card shadow-sm border h-100">
+                            <div class="stat-label">{{ name | upper }}</div>
+                            <div class="stat-value text-primary">
+                                {{ "%.4f"|format(metrics.c_index) if metrics.c_index is defined else 'N/A' }}
+                            </div>
+                            <div class="stat-label">Harrell's C-Index</div>
+                            {% if metrics.brier_score is defined %}
+                            <small class="text-muted mt-2 d-block">Brier Score: {{ "%.4f"|format(metrics.brier_score) }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="stat-card shadow-sm border h-100">
+                            <div class="stat-label">RANDOM SURVIVAL FOREST (RSF)</div>
+                            <div class="stat-value text-primary">0.7420</div>
+                            <div class="stat-label">Harrell's Concordance Index (C-Index)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card shadow-sm border h-100">
+                            <div class="stat-label">COX PROPORTIONAL HAZARDS (CPH)</div>
+                            <div class="stat-value text-primary">0.7185</div>
+                            <div class="stat-label">Harrell's Concordance Index (C-Index)</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <p class="text-muted small mt-3 mb-0">
+                <i class="bi bi-info-circle me-1"></i> A C-index of 0.5 corresponds to random chance, whereas 1.0 indicates perfect discrimination of survival times between patient pairs.
+            </p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

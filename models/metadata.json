@@ -1,0 +1,82 @@
+{
+  "training_date": "2026-10-23T05:46:44.389138+00:00",
+  "best_model": "cox_ph",
+  "risk_threshold": -0.948381,
+  "thresholds": {
+    "rsf": 2.006606,
+    "cox_ph": -0.948381
+  },
+  "metrics": {
+    "rsf": {
+      "model_name": "rsf",
+      "c_index": 0.7991,
+      "concordant_pairs": 1115,
+      "discordant_pairs": 280,
+      "tied_risk_pairs": 1,
+      "tied_time_pairs": 0,
+      "total_evaluable_pairs": 1396,
+      "n_samples": 60,
+      "discrimination_quality": "good",
+      "interpretation": "The rsf model achieved a C-index of 0.7991 (good discrimination), correctly ranking 79.9% of comparable patient survival pairs."
+    },
+    "cox_ph": {
+      "model_name": "cox_ph",
+      "c_index": 0.9943,
+      "concordant_pairs": 1388,
+      "discordant_pairs": 8,
+      "tied_risk_pairs": 0,
+      "tied_time_pairs": 0,
+      "total_evaluable_pairs": 1396,
+      "n_samples": 60,
+      "discrimination_quality": "excellent",
+      "interpretation": "The cox_ph model achieved a C-index of 0.9943 (excellent discrimination), correctly ranking 99.4% of comparable patient survival pairs."
+    }
+  },
+  "best_c_index": 0.9943,
+  "feature_names": [
+    "age",
+    "gene_expr_A",
+    "gene_expr_B",
+    "gene_expr_C",
+    "methylation_A",
+    "methylation_B",
+    "tumor_stage_II",
+    "tumor_stage_III",
+    "tumor_stage_IV"
+  ],
+  "numeric_features": [
+    "age",
+    "gene_expr_A",
+    "gene_expr_B",
+    "gene_expr_C",
+    "methylation_A",
+    "methylation_B"
+  ],
+  "categorical_features": [
+    "tumor_stage"
+  ],
+  "dataset_statistics": {
+    "total_samples": 300,
+    "train_samples": 240,
+    "test_samples": 60,
+    "overall_event_rate": 0.55,
+    "median_survival_months": 44.75,
+    "min_survival_months": 5.8,
+    "max_survival_months": 120.0
+  },
+  "model_hyperparameters": {
+    "cox_ph": {
+      "alpha": 0.1,
+      "engine": "lifelines"
+    },
+    "rsf": {
+      "n_estimators": 50,
+      "min_samples_split": 8,
+      "min_samples_leaf": 4,
+      "random_state": 42,
+      "engine": "native_logrank"
+    }
+  },
+  "random_seed": 42,
+  "disclaimer": "This model was trained on synthetic cancer survival data for research and educational demonstration. It must not be used for actual medical diagnosis, clinical treatment planning, or patient prognosis."
+}

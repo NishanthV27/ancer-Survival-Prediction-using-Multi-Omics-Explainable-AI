@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Cancer Survival Prediction{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- Warning / Academic Disclaimer Banner -->
+    <div class="disclaimer-banner d-flex align-items-center mb-4 shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-warning"></i>
+        <div>
+            <strong>ACADEMIC DEMONSTRATION:</strong> This application uses synthetic data for educational purposes only. It is not intended for clinical use, medical decision-making, or real patient diagnosis.
+        </div>
+    </div>
+
+    <!-- Data Error Alert (if present) -->
+    {% if data_error %}
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-4" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-x-octagon-fill fs-4 me-3"></i>
+            <div>
+                <strong>Data Loading Notice:</strong> {{ data_error }}
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    <!-- Hero Section -->
+    <section class="hero-section text-center shadow-sm">
+        <div class="container py-2">
+            <span class="badge bg-light text-primary fw-semibold px-3 py-2 rounded-pill mb-3">
+                <i class="bi bi-dna me-1"></i> Multi-Omics Machine Learning Platform
+            </span>
+            <h1 class="display-5 fw-bold mb-3">Cancer Survival Prediction using Multi-Omics &amp; Explainable AI</h1>
+            <p class="lead mb-4 mx-auto" style="max-width: 820px;">
+                TCGA-COAD Synthetic Data Demonstration &mdash; Harnessing genomics, DNA methylation epigenomics, and clinical biomarkers to accurately predict patient survival trajectories and deliver transparent, interpretable risk factors.
+            </p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="/predict" class="btn btn-light btn-lg px-4 fw-bold text-primary shadow-sm">
+                    <i class="bi bi-calculator me-2"></i> Predict Patient Risk
+                </a>
+                <a href="/dashboard" class="btn btn-outline-light btn-lg px-4 fw-semibold">
+                    <i class="bi bi-speedometer2 me-2"></i> Explore Dashboard
+                </a>
+                <a href="/analytics" class="btn btn-outline-light btn-lg px-4 fw-semibold">
+                    <i class="bi bi-graph-up me-2"></i> KM Survival Curves
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Multi-Omics Intro Section -->
+    <section class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-3 rounded-circle bg-primary bg-opacity-10 text-primary me-3">
+                            <i class="bi bi-diagram-3 fs-3"></i>
+                        </div>
+                        <h4 class="card-title fw-bold m-0 text-navy">What is Multi-Omics Survival Modeling?</h4>
+                    </div>
+                    <p class="text-secondary mb-3">
+                        Traditional oncological prognosis predominantly relies on tumor staging and histopathology. However, tumors with identical histology exhibit vastly different clinical trajectories. Multi-omics bridges this gap by integrating multiple biological layers:
+                    </p>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2 d-flex align-items-start">
+                            <i class="bi bi-check2-circle text-success fs-5 me-2 mt-n1"></i>
+                            <div><strong>Transcriptomics (mRNA Gene Expression):</strong> Quantifies transcript abundance for key oncogenes and tumor suppressors (e.g., Gene A, B, C).</div>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <i class="bi bi-check2-circle text-success fs-5 me-2 mt-n1"></i>
+                            <div><strong>Epigenomics (DNA Methylation Beta Values):</strong> Captures epigenetic silencing and chromatin remodeling (CpG methylation biomarkers).</div>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <i class="bi bi-check2-circle text-success fs-5 me-2 mt-n1"></i>
+                            <div><strong>Clinical Features:</strong> Patient baseline age and pathological TNM tumor staging (Stages I &ndash; IV).</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-3 rounded-circle bg-success bg-opacity-10 text-success me-3">
+                            <i class="bi bi-lightbulb fs-3"></i>
+                        </div>
+                        <h4 class="card-title fw-bold m-0 text-navy">Explainable AI (XAI) in Oncology</h4>
+                    </div>
+                    <p class="text-secondary mb-3">
+                        Black-box machine learning models cannot be safely applied in clinical healthcare without full interpretability. Our platform provides dual-level explainability:
+                    </p>
+                    <ul class="list-unstyled mb-3">
+                        <li class="mb-2 d-flex align-items-start">
+                            <i class="bi bi-arrow-right-circle text-primary fs-5 me-2 mt-n1"></i>
+                            <div><strong>Global Feature Importance:</strong> Uncovers population-wide drivers of mortality hazard across the entire patient cohort.</div>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <i class="bi bi-arrow-right-circle text-primary fs-5 me-2 mt-n1"></i>
+                            <div><strong>Local Patient Attribution:</strong> Explains individual predictions by breaking down how each biomarker increases (hazard) or decreases (protection) patient risk.</div>
+                        </li>
+                    </ul>
+                    <div class="bg-light p-3 rounded border">
+                        <small class="text-muted d-block">
+                            <i class="bi bi-cpu-fill text-primary me-1"></i> Supported Architectures: <strong>Cox Proportional Hazards</strong> &amp; <strong>Random Survival Forests (RSF)</strong> with right-censoring handling.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Workflow Diagram Section -->
+    <section class="card mb-4 shadow-sm border-0">
+        <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="m-0 fw-bold text-navy">
+                <i class="bi bi-arrow-repeat text-primary me-2"></i> End-to-End Analytical Workflow
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row align-items-center g-3 text-center">
+                <!-- Step 1 -->
+                <div class="col-12 col-md-2">
+                    <div class="workflow-step card h-100 border p-3">
+                        <div class="step-icon">
+                            <i class="bi bi-database"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1">1. Dataset</h6>
+                        <small class="text-muted">TCGA-COAD multi-omics synthetic cohort</small>
+                    </div>
+                </div>
+
+                <!-- Arrow 1 -->
+                <div class="col-12 col-md-auto workflow-arrow">
+                    <i class="bi bi-chevron-right d-none d-md-block fs-3"></i>
+                    <i class="bi bi-chevron-down d-md-none fs-3 my-2"></i>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="col-12 col-md-2">
+                    <div class="workflow-step card h-100 border p-3">
+                        <div class="step-icon">
+                            <i class="bi bi-gear-wide-connected"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1">2. Preprocessing</h6>
+                        <small class="text-muted">Normalization, encoding &amp; feature scaling</small>
+                    </div>
+                </div>
+
+                <!-- Arrow 2 -->
+                <div class="col-12 col-md-auto workflow-arrow">
+                    <i class="bi bi-chevron-right d-none d-md-block fs-3"></i>
+                    <i class="bi bi-chevron-down d-md-none fs-3 my-2"></i>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="col-12 col-md-2">
+                    <div class="workflow-step card h-100 border p-3">
+                        <div class="step-icon">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1">3. Survival Models</h6>
+                        <small class="text-muted">Cox PH &amp; Random Survival Forests</small>
+                    </div>
+                </div>
+
+                <!-- Arrow 3 -->
+                <div class="col-12 col-md-auto workflow-arrow">
+                    <i class="bi bi-chevron-right d-none d-md-block fs-3"></i>
+                    <i class="bi bi-chevron-down d-md-none fs-3 my-2"></i>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="col-12 col-md-2">
+                    <div class="workflow-step card h-100 border p-3">
+                        <div class="step-icon">
+                            <i class="bi bi-diagram-3"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1">4. Risk Explanation</h6>
+                        <small class="text-muted">Local &amp; global feature contribution</small>
+                    </div>
+                </div>
+
+                <!-- Arrow 4 -->
+                <div class="col-12 col-md-auto workflow-arrow">
+                    <i class="bi bi-chevron-right d-none d-md-block fs-3"></i>
+                    <i class="bi bi-chevron-down d-md-none fs-3 my-2"></i>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="col-12 col-md-2">
+                    <div class="workflow-step card h-100 border p-3">
+                        <div class="step-icon">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1">5. KM Analysis</h6>
+                        <small class="text-muted">Kaplan-Meier survival curves &amp; log-rank</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cohort Statistics Cards -->
+    <section class="mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="fw-bold text-navy m-0">
+                <i class="bi bi-pie-chart-fill text-primary me-2"></i> Synthetic Cohort Overview
+            </h5>
+            <a href="/dataset" class="btn btn-sm btn-outline-primary">
+                View Full Dataset <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row g-3">
+            <!-- Total Patients -->
+            <div class="col-6 col-lg-3">
+                <div class="stat-card shadow-sm h-100">
+                    <div class="stat-icon text-primary">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div class="stat-value" id="statsTotalPatients">
+                        {{ stats.total_patients if stats and stats.total_patients is defined else '1,000' }}
+                    </div>
+                    <div class="stat-label">Total Patients</div>
+                </div>
+            </div>
+
+            <!-- Observed Events -->
+            <div class="col-6 col-lg-3">
+                <div class="stat-card shadow-sm h-100">
+                    <div class="stat-icon text-danger">
+                        <i class="bi bi-activity"></i>
+                    </div>
+                    <div class="stat-value text-danger" id="statsEvents">
+                        {{ stats.events if stats and stats.events is defined else '350' }}
+                    </div>
+                    <div class="stat-label">Events (Mortality)</div>
+                </div>
+            </div>
+
+            <!-- Censored -->
+            <div class="col-6 col-lg-3">
+                <div class="stat-card shadow-sm h-100">
+                    <div class="stat-icon text-success">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div class="stat-value text-success" id="statsCensored">
+                        {{ stats.censored if stats and stats.censored is defined else '650' }}
+                    </div>
+                    <div class="stat-label">Right Censored</div>
+                </div>
+            </div>
+
+            <!-- Average Age -->
+            <div class="col-6 col-lg-3">
+                <div class="stat-card shadow-sm h-100">
+                    <div class="stat-icon text-warning">
+                        <i class="bi bi-calendar3"></i>
+                    </div>
+                    <div class="stat-value text-warning" id="statsAvgAge">
+                        {{ stats.avg_age if stats and stats.avg_age is defined else '62.4' }}
+                    </div>
+                    <div class="stat-label">Average Age (Years)</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Navigation Modules -->
+    <section class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3">
+                        <span class="p-3 rounded-circle bg-primary bg-opacity-10 text-primary d-inline-block">
+                            <i class="bi bi-speedometer2 fs-2"></i>
+                        </span>
+                    </div>
+                    <h5 class="fw-bold text-navy">Dataset Dashboard</h5>
+                    <p class="text-muted small">
+                        Explore cohort demographics, tumor stage proportions, gene expression summaries, and epigenetic methylation distributions.
+                    </p>
+                    <a href="/dashboard" class="btn btn-outline-primary btn-sm px-4">Open Dashboard</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3">
+                        <span class="p-3 rounded-circle bg-danger bg-opacity-10 text-danger d-inline-block">
+                            <i class="bi bi-calculator fs-2"></i>
+                        </span>
+                    </div>
+                    <h5 class="fw-bold text-navy">Risk Prediction</h5>
+                    <p class="text-muted small">
+                        Input patient clinical markers and multi-omics biomarkers to evaluate survival probability curves and estimated risk scores.
+                    </p>
+                    <a href="/predict" class="btn btn-primary btn-sm px-4">Calculate Risk</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3">
+                        <span class="p-3 rounded-circle bg-success bg-opacity-10 text-success d-inline-block">
+                            <i class="bi bi-graph-up fs-2"></i>
+                        </span>
+                    </div>
+                    <h5 class="fw-bold text-navy">Survival Analytics</h5>
+                    <p class="text-muted small">
+                        Visualize Kaplan-Meier survival curves, right censoring timelines, log-rank p-values, and risk stratum separation.
+                    </p>
+                    <a href="/analytics" class="btn btn-outline-primary btn-sm px-4">View Analytics</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

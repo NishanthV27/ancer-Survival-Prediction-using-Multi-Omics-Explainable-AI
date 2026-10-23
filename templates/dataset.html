@@ -1,0 +1,475 @@
+{% extends "base.html" %}
+
+{% block title %}Dataset Explorer - Cancer Survival Prediction{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <!-- Page Header -->
+    <div class="page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h2><i class="bi bi-table text-primary me-2"></i>Dataset Explorer</h2>
+            <p>Browse, filter, and inspect individual patient records in the synthetic TCGA-COAD multi-omics cohort.</p>
+        </div>
+        <div class="mt-2 mt-md-0 d-flex gap-2">
+            <a href="/api/dataset/download" class="btn btn-primary btn-sm">
+                <i class="bi bi-download me-1"></i> Download CSV Dataset
+            </a>
+            <button class="btn btn-outline-secondary btn-sm" id="btnRefreshData">
+                <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Academic Disclaimer Banner -->
+    <div class="disclaimer-banner d-flex align-items-center mb-4 shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-5 me-3 text-warning"></i>
+        <div>
+            <strong>SYNTHETIC DATA REPOSITORY:</strong> All records below are synthetically generated for educational demonstration of multi-omics survival modeling workflows. They do not correlate to real human identities or medical records.
+        </div>
+    </div>
+
+    <!-- Summary Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card shadow-sm h-100">
+                <div class="stat-icon text-primary"><i class="bi bi-people-fill"></i></div>
+                <div class="stat-value" id="cardTotalSamples">1,000</div>
+                <div class="stat-label">Total Cohort Samples</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card shadow-sm h-100">
+                <div class="stat-icon text-info"><i class="bi bi-dna"></i></div>
+                <div class="stat-value">3</div>
+                <div class="stat-label">mRNA Gene Markers</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card shadow-sm h-100">
+                <div class="stat-icon text-purple"><i class="bi bi-fingerprint"></i></div>
+                <div class="stat-value">2</div>
+                <div class="stat-label">CpG Methylation Sites</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card shadow-sm h-100">
+                <div class="stat-icon text-danger"><i class="bi bi-percent"></i></div>
+                <div class="stat-value text-danger" id="cardEventRate">35.0%</div>
+                <div class="stat-label">Observed Event Rate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter and Search Bar -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="row g-3 align-items-end">
+                <!-- Search by Patient ID -->
+                <div class="col-md-4">
+                    <label for="searchPatientId" class="form-label fw-bold">
+                        <i class="bi bi-search text-primary me-1"></i> Patient ID
+                    </label>
+                    <input type="text" class="form-control" id="searchPatientId" placeholder="e.g. TCGA-001 or 123">
+                </div>
+
+                <!-- Filter by Tumor Stage -->
+                <div class="col-md-3">
+                    <label for="filterStage" class="form-label fw-bold">
+                        <i class="bi bi-filter-circle text-primary me-1"></i> Tumor Stage
+                    </label>
+                    <select class="form-select" id="filterStage">
+                        <option value="ALL">All Stages (I &ndash; IV)</option>
+                        <option value="I">Stage I</option>
+                        <option value="II">Stage II</option>
+                        <option value="III">Stage III</option>
+                        <option value="IV">Stage IV</option>
+                    </select>
+                </div>
+
+                <!-- Filter by Event Status -->
+                <div class="col-md-3">
+                    <label for="filterEvent" class="form-label fw-bold">
+                        <i class="bi bi-heartbreak text-danger me-1"></i> Event (Vital Status)
+                    </label>
+                    <select class="form-select" id="filterEvent">
+                        <option value="ALL">All Statuses</option>
+                        <option value="1">Event (Deceased)</option>
+                        <option value="0">Censored (Alive / Follow-up)</option>
+                    </select>
+                </div>
+
+                <!-- Clear / Reset Filters -->
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-outline-secondary w-100" id="btnResetFilters">
+                        <i class="bi bi-x-circle me-1"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3 d-flex flex-wrap align-items-center justify-content-between">
+            <h5 class="m-0 fw-bold text-navy">
+                <i class="bi bi-view-list text-primary me-2"></i> Patient Records
+                <span class="badge bg-light text-secondary ms-2" id="recordCountBadge">Showing 0 of 0</span>
+            </h5>
+            <div class="d-flex align-items-center gap-2 mt-2 mt-sm-0">
+                <label for="pageSizeSelect" class="form-label m-0 small text-muted">Rows per page:</label>
+                <select class="form-select form-select-sm" id="pageSizeSelect" style="width: auto;">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <!-- Loading Indicator -->
+            <div id="datasetLoading" class="spinner-container py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading dataset...</span>
+                </div>
+                <p class="mt-2 text-muted small">Loading patient cohort records...</p>
+            </div>
+
+            <!-- Table Container -->
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0" id="datasetTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">Patient ID</th>
+                            <th scope="col" class="text-center">Age</th>
+                            <th scope="col" class="text-center">Stage</th>
+                            <th scope="col" class="text-end">Gene A (mRNA)</th>
+                            <th scope="col" class="text-end">Gene B (mRNA)</th>
+                            <th scope="col" class="text-end">Gene C (mRNA)</th>
+                            <th scope="col" class="text-end">Methylation A</th>
+                            <th scope="col" class="text-end">Methylation B</th>
+                            <th scope="col" class="text-center">Survival Time (Mo)</th>
+                            <th scope="col" class="text-center">Vital Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="datasetTableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State Message -->
+            <div id="noRecordsMessage" class="text-center py-5 text-muted" style="display: none;">
+                <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                <h6 class="fw-bold">No matching patient records found</h6>
+                <p class="small">Try adjusting your search criteria or resetting filters.</p>
+            </div>
+        </div>
+
+        <!-- Pagination Controls Footer -->
+        <div class="card-footer bg-white py-3 d-flex flex-wrap align-items-center justify-content-between">
+            <div class="small text-muted" id="paginationInfo">
+                Showing page 1 of 1
+            </div>
+            <nav aria-label="Dataset table pagination">
+                <ul class="pagination pagination-sm m-0" id="paginationList">
+                    <!-- Populated by JavaScript -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let allData = [];
+    let filteredData = [];
+    let currentPage = 1;
+    let pageSize = 25;
+
+    const tableBody = document.getElementById('datasetTableBody');
+    const loadingEl = document.getElementById('datasetLoading');
+    const noRecordsEl = document.getElementById('noRecordsMessage');
+    const paginationList = document.getElementById('paginationList');
+    const paginationInfo = document.getElementById('paginationInfo');
+    const recordCountBadge = document.getElementById('recordCountBadge');
+    const cardTotalSamples = document.getElementById('cardTotalSamples');
+    const cardEventRate = document.getElementById('cardEventRate');
+
+    const searchInput = document.getElementById('searchPatientId');
+    const filterStage = document.getElementById('filterStage');
+    const filterEvent = document.getElementById('filterEvent');
+    const pageSizeSelect = document.getElementById('pageSizeSelect');
+    const btnReset = document.getElementById('btnResetFilters');
+    const btnRefresh = document.getElementById('btnRefreshData');
+
+    // Fetch dataset from API
+    async function fetchDataset() {
+        if (loadingEl) loadingEl.classList.add('active');
+        if (tableBody) tableBody.innerHTML = '';
+        if (noRecordsEl) noRecordsEl.style.display = 'none';
+
+        try {
+            const response = await fetch('/api/dataset?per_page=1000');
+            if (!response.ok) {
+                throw new Error('HTTP error ' + response.status);
+            }
+            const res = await response.json();
+            
+            // Handle various possible response formats
+            if (Array.isArray(res)) {
+                allData = res;
+            } else if (res.data && Array.isArray(res.data)) {
+                allData = res.data;
+            } else if (res.records && Array.isArray(res.records)) {
+                allData = res.records;
+            } else if (res.patients && Array.isArray(res.patients)) {
+                allData = res.patients;
+            } else {
+                allData = [];
+            }
+
+            // Update stats cards
+            if (allData.length > 0) {
+                if (cardTotalSamples) cardTotalSamples.textContent = allData.length.toLocaleString();
+                const eventCount = allData.filter(d => {
+                    const ev = d.event !== undefined ? d.event : d.vital_status;
+                    return ev === 1 || ev === '1' || ev === true || ev === 'Dead' || ev === 'Event';
+                }).length;
+                const rate = ((eventCount / allData.length) * 100).toFixed(1);
+                if (cardEventRate) cardEventRate.textContent = rate + '%';
+            }
+
+            applyFilters();
+        } catch (err) {
+            console.error('Failed to load dataset:', err);
+            // Fallback generation if API is empty or during standalone preview
+            generateFallbackData();
+            applyFilters();
+        } finally {
+            if (loadingEl) loadingEl.classList.remove('active');
+        }
+    }
+
+    function generateFallbackData() {
+        allData = [];
+        const stages = ['I', 'II', 'III', 'IV'];
+        for (let i = 1; i <= 100; i++) {
+            const stage = stages[Math.floor(Math.random() * stages.length)];
+            const isEvent = Math.random() < 0.35 ? 1 : 0;
+            const surv = isEvent ? (Math.random() * 40 + 5).toFixed(1) : (Math.random() * 50 + 20).toFixed(1);
+            allData.push({
+                patient_id: 'TCGA-COAD-' + String(i).padStart(4, '0'),
+                age: Math.floor(Math.random() * 40) + 45,
+                tumor_stage: stage,
+                gene_expr_A: (Math.random() * 6 + 6).toFixed(2),
+                gene_expr_B: (Math.random() * 5 + 3).toFixed(2),
+                gene_expr_C: (Math.random() * 5 + 4).toFixed(2),
+                methylation_A: (Math.random() * 0.8 + 0.1).toFixed(3),
+                methylation_B: (Math.random() * 0.8 + 0.1).toFixed(3),
+                survival_time: surv,
+                event: isEvent
+            });
+        }
+        if (cardTotalSamples) cardTotalSamples.textContent = allData.length.toLocaleString();
+    }
+
+    function applyFilters() {
+        const query = searchInput.value.trim().toLowerCase();
+        const stageVal = filterStage.value;
+        const eventVal = filterEvent.value;
+
+        filteredData = allData.filter(item => {
+            // Patient ID search
+            const pid = String(item.patient_id || item.id || '').toLowerCase();
+            if (query && !pid.includes(query)) return false;
+
+            // Tumor stage filter
+            const stage = String(item.tumor_stage || item.stage || '');
+            if (stageVal !== 'ALL' && stage !== stageVal) return false;
+
+            // Event status filter
+            const ev = item.event !== undefined ? item.event : item.vital_status;
+            const isEvent = (ev === 1 || ev === '1' || ev === true || ev === 'Dead' || ev === 'Event');
+            if (eventVal === '1' && !isEvent) return false;
+            if (eventVal === '0' && isEvent) return false;
+
+            return true;
+        });
+
+        currentPage = 1;
+        renderTable();
+    }
+
+    function renderTable() {
+        if (!tableBody) return;
+        tableBody.innerHTML = '';
+
+        if (recordCountBadge) {
+            recordCountBadge.textContent = `Showing ${filteredData.length.toLocaleString()} of ${allData.length.toLocaleString()} records`;
+        }
+
+        if (filteredData.length === 0) {
+            if (noRecordsEl) noRecordsEl.style.display = 'block';
+            if (paginationList) paginationList.innerHTML = '';
+            if (paginationInfo) paginationInfo.textContent = 'Showing 0 records';
+            return;
+        }
+
+        if (noRecordsEl) noRecordsEl.style.display = 'none';
+
+        const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        const startIdx = (currentPage - 1) * pageSize;
+        const endIdx = Math.min(startIdx + pageSize, filteredData.length);
+        const pageItems = filteredData.slice(startIdx, endIdx);
+
+        pageItems.forEach(item => {
+            const tr = document.createElement('tr');
+            
+            const ev = item.event !== undefined ? item.event : item.vital_status;
+            const isEvent = (ev === 1 || ev === '1' || ev === true || ev === 'Dead' || ev === 'Event');
+
+            const stageBadgeClass = {
+                'I': 'bg-success',
+                'II': 'bg-primary',
+                'III': 'bg-warning text-dark',
+                'IV': 'bg-danger'
+            }[item.tumor_stage || item.stage] || 'bg-secondary';
+
+            const geneA = item.gene_expr_A !== undefined ? Number(item.gene_expr_A).toFixed(2) : 'N/A';
+            const geneB = item.gene_expr_B !== undefined ? Number(item.gene_expr_B).toFixed(2) : 'N/A';
+            const geneC = item.gene_expr_C !== undefined ? Number(item.gene_expr_C).toFixed(2) : 'N/A';
+
+            const methA = item.methylation_A !== undefined ? Number(item.methylation_A).toFixed(3) : 'N/A';
+            const methB = item.methylation_B !== undefined ? Number(item.methylation_B).toFixed(3) : 'N/A';
+
+            const survTime = item.survival_months !== undefined 
+                ? Number(item.survival_months).toFixed(1) 
+                : (item.survival_time !== undefined 
+                    ? Number(item.survival_time).toFixed(1) 
+                    : (item.time ? Number(item.time).toFixed(1) : 'N/A'));
+
+            tr.innerHTML = `
+                <td><code>${item.patient_id || item.id || 'N/A'}</code></td>
+                <td class="text-center">${item.age || 'N/A'}</td>
+                <td class="text-center"><span class="badge ${stageBadgeClass}">Stage ${item.tumor_stage || item.stage || 'N/A'}</span></td>
+                <td class="text-end font-monospace">${geneA}</td>
+                <td class="text-end font-monospace">${geneB}</td>
+                <td class="text-end font-monospace">${geneC}</td>
+                <td class="text-end font-monospace text-purple">${methA}</td>
+                <td class="text-end font-monospace text-purple">${methB}</td>
+                <td class="text-center fw-bold">${survTime}</td>
+                <td class="text-center">
+                    ${isEvent 
+                        ? '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger"><i class="bi bi-x-circle me-1"></i>Event (Death)</span>' 
+                        : '<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="bi bi-check-circle me-1"></i>Censored</span>'
+                    }
+                </td>
+            `;
+            tableBody.appendChild(tr);
+        });
+
+        // Update pagination info text
+        if (paginationInfo) {
+            paginationInfo.textContent = `Showing ${startIdx + 1} to ${endIdx} of ${filteredData.length.toLocaleString()} patients (Page ${currentPage} of ${totalPages})`;
+        }
+
+        renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+        if (!paginationList) return;
+        paginationList.innerHTML = '';
+
+        // Previous button
+        const prevLi = document.createElement('li');
+        prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+        prevLi.innerHTML = `<button class="page-link" aria-label="Previous"><i class="bi bi-chevron-left"></i></button>`;
+        prevLi.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        });
+        paginationList.appendChild(prevLi);
+
+        // Page windowing
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+
+        if (startPage > 1) {
+            addPageButton(1);
+            if (startPage > 2) addEllipsis();
+        }
+
+        for (let p = startPage; p <= endPage; p++) {
+            addPageButton(p);
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) addEllipsis();
+            addPageButton(totalPages);
+        }
+
+        // Next button
+        const nextLi = document.createElement('li');
+        nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+        nextLi.innerHTML = `<button class="page-link" aria-label="Next"><i class="bi bi-chevron-right"></i></button>`;
+        nextLi.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        });
+        paginationList.appendChild(nextLi);
+    }
+
+    function addPageButton(pageNumber) {
+        const li = document.createElement('li');
+        li.className = `page-item ${currentPage === pageNumber ? 'active' : ''}`;
+        li.innerHTML = `<button class="page-link">${pageNumber}</button>`;
+        li.addEventListener('click', () => {
+            currentPage = pageNumber;
+            renderTable();
+        });
+        paginationList.appendChild(li);
+    }
+
+    function addEllipsis() {
+        const li = document.createElement('li');
+        li.className = 'page-item disabled';
+        li.innerHTML = '<span class="page-link">&hellip;</span>';
+        paginationList.appendChild(li);
+    }
+
+    // Event listeners
+    searchInput?.addEventListener('input', applyFilters);
+    filterStage?.addEventListener('change', applyFilters);
+    filterEvent?.addEventListener('change', applyFilters);
+    
+    pageSizeSelect?.addEventListener('change', function() {
+        pageSize = parseInt(this.value, 10);
+        currentPage = 1;
+        renderTable();
+    });
+
+    btnReset?.addEventListener('click', function() {
+        searchInput.value = '';
+        filterStage.value = 'ALL';
+        filterEvent.value = 'ALL';
+        applyFilters();
+    });
+
+    btnRefresh?.addEventListener('click', fetchDataset);
+
+    // Initial load
+    fetchDataset();
+});
+</script>
+{% endblock %}
