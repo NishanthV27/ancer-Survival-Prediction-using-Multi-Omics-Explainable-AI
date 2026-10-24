@@ -150,9 +150,8 @@ def predict_risk(
         f"<strong>Risk Score:</strong> {round(risk_score, 4)} "
         f"({'above' if risk_score >= threshold else 'below'} threshold of {round(threshold, 4)})<br>"
         f"<strong>Interpretation:</strong> A higher risk score indicates higher predicted mortality "
-        f"risk <em>relative to other patients in this synthetic dataset</em>. "
-        f"The threshold is the median training risk score.<br>"
-        f"<strong>{CLINICAL_DISCLAIMER}</strong>"
+        f"hazard relative to other cohort patients. "
+        f"The threshold corresponds to the median training cohort risk score."
     )
 
     # Format patient input for response echo

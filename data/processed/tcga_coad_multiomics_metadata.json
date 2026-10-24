@@ -1,0 +1,42 @@
+{
+  "dataset_name": "TCGA-COAD Matched Multi-Omics Dataset",
+  "description": "Real patient multi-omics data integrating Clinical follow-up, RNA-seq, and DNA Methylation.",
+  "cohort_size": 11,
+  "events": 3,
+  "censored": 8,
+  "biomarkers": {
+    "gene_expr_A": {
+      "symbol": "TP53",
+      "description": "Tumor Protein P53 (key tumor suppressor mutated in ~60% COAD)"
+    },
+    "gene_expr_B": {
+      "symbol": "KRAS",
+      "description": "KRAS Proto-Oncogene (GTPase oncogene mutated in ~40% COAD)"
+    },
+    "gene_expr_C": {
+      "symbol": "MUC2",
+      "description": "Mucin 2, Oligomeric Mucus/Gel-Forming (intestinal goblet cell marker)"
+    },
+    "methylation_A": {
+      "probe_id": "cg00000292",
+      "description": "CpG site beta-value (DNA methylation level [0.0 - 1.0])"
+    },
+    "methylation_B": {
+      "probe_id": "cg00005847",
+      "description": "CpG site beta-value (DNA methylation level [0.0 - 1.0])"
+    }
+  },
+  "matched_patient_ids": [
+    "TCGA-3L-AA1B",
+    "TCGA-4N-A93T",
+    "TCGA-4T-AA8H",
+    "TCGA-5M-AAT4",
+    "TCGA-5M-AATE",
+    "TCGA-A6-2672",
+    "TCGA-A6-2674",
+    "TCGA-A6-2675",
+    "TCGA-A6-2676",
+    "TCGA-A6-2677",
+    "TCGA-AA-A01V"
+  ]
+}

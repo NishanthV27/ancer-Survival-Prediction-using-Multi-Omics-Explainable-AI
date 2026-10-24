@@ -5,13 +5,6 @@
 {% block content %}
 <div class="container-fluid px-0">
 
-    <!-- Warning / Academic Disclaimer Banner -->
-    <div class="disclaimer-banner d-flex align-items-center mb-4 shadow-sm" role="alert">
-        <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-warning"></i>
-        <div>
-            <strong>ACADEMIC DEMONSTRATION:</strong> This application uses synthetic data for educational purposes only. It is not intended for clinical use, medical decision-making, or real patient diagnosis.
-        </div>
-    </div>
 
     <!-- Data Error Alert (if present) -->
     {% if data_error %}
@@ -114,96 +107,7 @@
         </div>
     </section>
 
-    <!-- Workflow Diagram Section -->
-    <section class="card mb-4 shadow-sm border-0">
-        <div class="card-header bg-white py-3 border-bottom">
-            <h5 class="m-0 fw-bold text-navy">
-                <i class="bi bi-arrow-repeat text-primary me-2"></i> End-to-End Analytical Workflow
-            </h5>
-        </div>
-        <div class="card-body p-4">
-            <div class="row align-items-center g-3 text-center">
-                <!-- Step 1 -->
-                <div class="col-12 col-md-2">
-                    <div class="workflow-step card h-100 border p-3">
-                        <div class="step-icon">
-                            <i class="bi bi-database"></i>
-                        </div>
-                        <h6 class="fw-bold mb-1">1. Dataset</h6>
-                        <small class="text-muted">TCGA-COAD multi-omics synthetic cohort</small>
-                    </div>
-                </div>
 
-                <!-- Arrow 1 -->
-                <div class="col-12 col-md-auto workflow-arrow">
-                    <i class="bi bi-chevron-right d-none d-md-block fs-3"></i>
-                    <i class="bi bi-chevron-down d-md-none fs-3 my-2"></i>
-                </div>
-
-                <!-- Step 2 -->
-                <div class="col-12 col-md-2">
-                    <div class="workflow-step card h-100 border p-3">
-                        <div class="step-icon">
-                            <i class="bi bi-gear-wide-connected"></i>
-                        </div>
-                        <h6 class="fw-bold mb-1">2. Preprocessing</h6>
-                        <small class="text-muted">Normalization, encoding &amp; feature scaling</small>
-                    </div>
-                </div>
-
-                <!-- Arrow 2 -->
-                <div class="col-12 col-md-auto workflow-arrow">
-                    <i class="bi bi-chevron-right d-none d-md-block fs-3"></i>
-                    <i class="bi bi-chevron-down d-md-none fs-3 my-2"></i>
-                </div>
-
-                <!-- Step 3 -->
-                <div class="col-12 col-md-2">
-                    <div class="workflow-step card h-100 border p-3">
-                        <div class="step-icon">
-                            <i class="bi bi-cpu"></i>
-                        </div>
-                        <h6 class="fw-bold mb-1">3. Survival Models</h6>
-                        <small class="text-muted">Cox PH &amp; Random Survival Forests</small>
-                    </div>
-                </div>
-
-                <!-- Arrow 3 -->
-                <div class="col-12 col-md-auto workflow-arrow">
-                    <i class="bi bi-chevron-right d-none d-md-block fs-3"></i>
-                    <i class="bi bi-chevron-down d-md-none fs-3 my-2"></i>
-                </div>
-
-                <!-- Step 4 -->
-                <div class="col-12 col-md-2">
-                    <div class="workflow-step card h-100 border p-3">
-                        <div class="step-icon">
-                            <i class="bi bi-diagram-3"></i>
-                        </div>
-                        <h6 class="fw-bold mb-1">4. Risk Explanation</h6>
-                        <small class="text-muted">Local &amp; global feature contribution</small>
-                    </div>
-                </div>
-
-                <!-- Arrow 4 -->
-                <div class="col-12 col-md-auto workflow-arrow">
-                    <i class="bi bi-chevron-right d-none d-md-block fs-3"></i>
-                    <i class="bi bi-chevron-down d-md-none fs-3 my-2"></i>
-                </div>
-
-                <!-- Step 5 -->
-                <div class="col-12 col-md-2">
-                    <div class="workflow-step card h-100 border p-3">
-                        <div class="step-icon">
-                            <i class="bi bi-graph-up"></i>
-                        </div>
-                        <h6 class="fw-bold mb-1">5. KM Analysis</h6>
-                        <small class="text-muted">Kaplan-Meier survival curves &amp; log-rank</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Cohort Statistics Cards -->
     <section class="mb-4">

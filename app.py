@@ -330,7 +330,8 @@ def api_dataset():
         if search:
             filtered = filtered[filtered['patient_id'].str.contains(search, case=False, na=False)]
         if stage_filter:
-            filtered = filtered[filtered['tumor_stage'] == stage_filter]
+            clean_stage = stage_filter.replace('Stage ', '').strip()
+            filtered = filtered[filtered['tumor_stage'].isin([stage_filter, f"Stage {clean_stage}", clean_stage])]
         if event_filter != '':
             try:
                 filtered = filtered[filtered['event'] == int(event_filter)]
@@ -374,14 +375,41 @@ def api_dataset():
 
 @app.route('/api/dataset/download')
 def download_dataset():
-    """Download the synthetic dataset CSV."""
+    """Download the active dataset CSV."""
     try:
         filepath = app.config['DATASET_PATH']
         if not os.path.exists(filepath):
             return jsonify({'error': 'Dataset file not found'}), 404
-        return send_file(filepath, as_attachment=True, download_name='synthetic_tcga_coad_demo.csv')
+        filename = os.path.basename(filepath)
+        return send_file(filepath, as_attachment=True, download_name=filename)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/multiomics/status')
+def api_multiomics_status():
+    """Report real multi-omics data integration status."""
+    meta_path = os.path.join(app.config['DATA_DIR'], 'processed', 'tcga_coad_multiomics_metadata.json')
+    meta = {}
+    if os.path.exists(meta_path):
+        try:
+            with open(meta_path, 'r', encoding='utf-8') as f:
+                meta = json.load(f)
+        except Exception:
+            pass
+    return jsonify({
+        'status': 'ok',
+        'dataset_mode': getattr(Config, 'DATASET_MODE', 'real_multiomics'),
+        'dataset_path': app.config['DATASET_PATH'],
+        'multiomics_metadata': meta,
+        'biomarkers': [
+            {'id': 'gene_expr_A', 'name': 'TP53', 'type': 'RNA-seq', 'metric': 'log2(TPM+1)'},
+            {'id': 'gene_expr_B', 'name': 'KRAS', 'type': 'RNA-seq', 'metric': 'log2(TPM+1)'},
+            {'id': 'gene_expr_C', 'name': 'MUC2', 'type': 'RNA-seq', 'metric': 'log2(TPM+1)'},
+            {'id': 'methylation_A', 'name': 'cg00000292', 'type': 'DNA Methylation', 'metric': 'Beta-value'},
+            {'id': 'methylation_B', 'name': 'cg00005847', 'type': 'DNA Methylation', 'metric': 'Beta-value'},
+        ]
+    })
 
 
 @app.route('/about')
@@ -393,7 +421,13 @@ def about_page():
 @app.route('/api/health')
 def api_health():
     """Health check endpoint."""
-    health = {'status': 'ok', 'dataset': False, 'models': False}
+    health = {
+        'status': 'ok',
+        'dataset': False,
+        'models': False,
+        'dataset_mode': getattr(Config, 'DATASET_MODE', 'unknown'),
+        'dataset_path': app.config['DATASET_PATH'],
+    }
     
     df, err = get_dataset()
     if df is not None:

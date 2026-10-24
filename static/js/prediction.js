@@ -15,13 +15,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function fillSampleData() {
-    document.getElementById('age').value = 62;
-    document.getElementById('tumor_stage').value = 'III';
-    document.getElementById('gene_expr_A').value = 9.5;
-    document.getElementById('gene_expr_B').value = 4.2;
-    document.getElementById('gene_expr_C').value = 7.1;
-    document.getElementById('methylation_A').value = 0.65;
-    document.getElementById('methylation_B').value = 0.42;
+    document.getElementById('age').value = 61;
+    document.getElementById('tumor_stage').value = 'II';
+    document.getElementById('gene_expr_A').value = 6.40;
+    document.getElementById('gene_expr_B').value = 4.93;
+    document.getElementById('gene_expr_C').value = 7.67;
+    document.getElementById('methylation_A').value = 0.61;
+    document.getElementById('methylation_B').value = 0.70;
 }
 
 function clearForm() {

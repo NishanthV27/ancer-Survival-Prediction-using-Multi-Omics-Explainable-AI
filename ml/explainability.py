@@ -54,24 +54,24 @@ def get_feature_descriptions() -> Dict[str, str]:
         "tumor_stage_III": "Stage III indicator: regional advancement involving lymph node chains.",
         "tumor_stage_IV": "Stage IV indicator: advanced metastatic disease.",
         "gene_expr_A": (
-            "Normalized transcript expression of Oncogene A. Elevated expression correlates "
-            "with accelerated cell proliferation, anti-apoptotic signaling, and increased hazard."
+            "Tumor Protein P53 (TP53) RNA-seq log2(TPM+1). Master tumor suppressor regulating "
+            "cell cycle arrest, genomic stability, and apoptosis; frequently altered in colorectal adenocarcinoma."
         ),
         "gene_expr_B": (
-            "Normalized transcript expression of Tumor Suppressor Gene B. Higher expression is "
-            "protective and promotes cell cycle arrest or programmed apoptosis."
+            "KRAS Proto-Oncogene GTPase RNA-seq log2(TPM+1). Key downstream transducer in the "
+            "EGFR-MAPK signaling pathway; oncogenic activation drives uncontrolled colorectal cell proliferation."
         ),
         "gene_expr_C": (
-            "Normalized transcript expression of DNA Repair Factor C. Modulates genomic stability "
-            "and sensitivity to cytotoxic DNA damage."
+            "Mucin 2 (MUC2) RNA-seq log2(TPM+1). Predominant intestinal gel-forming mucin secreted by "
+            "goblet cells; loss of expression is associated with mucosal barrier disruption in invasive colon tumors."
         ),
         "methylation_A": (
-            "DNA methylation beta-value (0.0 to 1.0) at promoter region A. High methylation leads "
-            "to epigenetic transcriptional silencing."
+            "DNA methylation &beta;-value (0.0 to 1.0) at CpG locus cg00000292. Epigenetic measurement "
+            "quantifying promoter cytosine methylation level from Illumina assay."
         ),
         "methylation_B": (
-            "DNA methylation beta-value (0.0 to 1.0) at regulatory region B. Epigenetic biomarker "
-            "governing chromatin compaction and gene accessibility."
+            "DNA methylation &beta;-value (0.0 to 1.0) at CpG locus cg00005847. Epigenetic regulatory locus "
+            "governing chromatin compaction and transcriptional accessibility."
         ),
     }
 

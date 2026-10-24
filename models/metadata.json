@@ -1,38 +1,38 @@
 {
-  "training_date": "2026-10-23T05:46:44.389138+00:00",
-  "best_model": "cox_ph",
-  "risk_threshold": -0.948381,
+  "training_date": "2026-10-23T09:09:54.917187+00:00",
+  "best_model": "rsf",
+  "risk_threshold": 0.418476,
   "thresholds": {
-    "rsf": 2.006606,
-    "cox_ph": -0.948381
+    "rsf": 0.418476,
+    "cox_ph": 0.009864
   },
   "metrics": {
     "rsf": {
       "model_name": "rsf",
-      "c_index": 0.7991,
-      "concordant_pairs": 1115,
-      "discordant_pairs": 280,
+      "c_index": 0.75,
+      "concordant_pairs": 1,
+      "discordant_pairs": 0,
       "tied_risk_pairs": 1,
       "tied_time_pairs": 0,
-      "total_evaluable_pairs": 1396,
-      "n_samples": 60,
+      "total_evaluable_pairs": 2,
+      "n_samples": 3,
       "discrimination_quality": "good",
-      "interpretation": "The rsf model achieved a C-index of 0.7991 (good discrimination), correctly ranking 79.9% of comparable patient survival pairs."
+      "interpretation": "The rsf model achieved a C-index of 0.7500 (good discrimination), correctly ranking 75.0% of comparable patient survival pairs."
     },
     "cox_ph": {
       "model_name": "cox_ph",
-      "c_index": 0.9943,
-      "concordant_pairs": 1388,
-      "discordant_pairs": 8,
+      "c_index": 0.0,
+      "concordant_pairs": 0,
+      "discordant_pairs": 2,
       "tied_risk_pairs": 0,
       "tied_time_pairs": 0,
-      "total_evaluable_pairs": 1396,
-      "n_samples": 60,
-      "discrimination_quality": "excellent",
-      "interpretation": "The cox_ph model achieved a C-index of 0.9943 (excellent discrimination), correctly ranking 99.4% of comparable patient survival pairs."
+      "total_evaluable_pairs": 2,
+      "n_samples": 3,
+      "discrimination_quality": "poor / near random",
+      "interpretation": "The cox_ph model achieved a C-index of 0.0000 (poor / near random discrimination), correctly ranking 0.0% of comparable patient survival pairs."
     }
   },
-  "best_c_index": 0.9943,
+  "best_c_index": 0.75,
   "feature_names": [
     "age",
     "gene_expr_A",
@@ -40,9 +40,9 @@
     "gene_expr_C",
     "methylation_A",
     "methylation_B",
-    "tumor_stage_II",
-    "tumor_stage_III",
-    "tumor_stage_IV"
+    "tumor_stage_Stage II",
+    "tumor_stage_Stage III",
+    "tumor_stage_Stage IV"
   ],
   "numeric_features": [
     "age",
@@ -56,13 +56,13 @@
     "tumor_stage"
   ],
   "dataset_statistics": {
-    "total_samples": 300,
-    "train_samples": 240,
-    "test_samples": 60,
-    "overall_event_rate": 0.55,
-    "median_survival_months": 44.75,
-    "min_survival_months": 5.8,
-    "max_survival_months": 120.0
+    "total_samples": 11,
+    "train_samples": 8,
+    "test_samples": 3,
+    "overall_event_rate": 0.2727,
+    "median_survival_months": 24.31,
+    "min_survival_months": 1.02,
+    "max_survival_months": 46.62
   },
   "model_hyperparameters": {
     "cox_ph": {
